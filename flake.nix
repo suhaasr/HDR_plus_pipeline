@@ -61,8 +61,37 @@
             mainProgram = "hdrplus";
           };
         };
+
+        # CC0 sample from raw.pixls.us, used as a pseudo-burst by the e2e check.
+        sampleRaw = pkgs.fetchurl {
+          name = "nikon-z6ii-CZP_0303.NEF";
+          url = "https://raw.pixls.us/data/Nikon/Z%206_2/CZP_0303.NEF";
+          hash = "sha256-hentS85P60OengXDhF1Ve3bRAIDCOTWIIaAHWa/ZMUs=";
+        };
       in
       {
+        checks = {
+          build = hdr-plus;
+
+          e2e =
+            pkgs.runCommand "hdr-plus-e2e"
+              {
+                nativeBuildInputs = [
+                  hdr-plus
+                  pkgs.file
+                ];
+              }
+              ''
+                mkdir burst
+                ln -s ${sampleRaw} burst/frame0.nef
+                ln -s ${sampleRaw} burst/frame1.nef
+                hdrplus burst output.png frame0.nef frame1.nef
+                file burst/output.png | tee /dev/stderr \
+                  | grep -q "PNG image data, 6064 x 4040, 8-bit/color RGB"
+                touch $out
+              '';
+        };
+
         packages = {
           default = hdr-plus;
           hdr-plus = hdr-plus;
