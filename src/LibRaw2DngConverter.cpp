@@ -33,7 +33,7 @@ LibRaw2DngConverter::SetTiffFields(LibRaw2DngConverter::TiffPtr tiff_ptr) {
   TIFFSetField(tiff, TIFFTAG_CFAREPEATPATTERNDIM, &bayer_pattern_dimensions);
 
   const std::string cfa = Raw.GetCfaPatternString();
-  TIFFSetField(tiff, TIFFTAG_CFAPATTERN, cfa.c_str());
+  TIFFSetField(tiff, TIFFTAG_CFAPATTERN, 4, cfa.c_str());
 
   TIFFSetField(tiff, TIFFTAG_MAKE, "hdr-plus");
   TIFFSetField(tiff, TIFFTAG_UNIQUECAMERAMODEL, "hdr-plus");
@@ -58,9 +58,10 @@ LibRaw2DngConverter::SetTiffFields(LibRaw2DngConverter::TiffPtr tiff_ptr) {
                     // https://www.awaresystems.be/imaging/tiff/tifftags/cfaplanecolor.html
 
   const std::array<float, 4> black_level = Raw.GetBlackLevel();
+  TIFFSetField(tiff, TIFFTAG_BLACKLEVELREPEATDIM, &bayer_pattern_dimensions);
   TIFFSetField(tiff, TIFFTAG_BLACKLEVEL, 4, &black_level);
 
-  static const uint32_t white_level = raw_color.maximum;
+  const uint32_t white_level = raw_color.maximum;
   TIFFSetField(tiff, TIFFTAG_WHITELEVEL, 1, &white_level);
 
   if (RawProcessor->imgdata.sizes.flip > 0) {
