@@ -40,7 +40,11 @@
 
           cmakeFlags = [
             "-DCMAKE_BUILD_TYPE=Release"
-          ];
+          ]
+          # Halide defaults to the build machine's CPU ("host"), which can emit
+          # instructions other machines lack. Use runtime dispatch instead.
+          ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isx86_64
+            "-DHalide_TARGET=x86-64-linux-avx2-fma-f16c-sse41;x86-64-linux-sse41";
 
           # The build produces two binaries: hdrplus and stack_frames
           installPhase = ''
