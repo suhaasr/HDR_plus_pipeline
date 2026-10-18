@@ -120,6 +120,11 @@ int main(int argc, char *argv[]) {
   }
 
   Burst burst(dir_path, in_names);
+  try {
+    burst.Validate();
+  } catch (const std::invalid_argument &) {
+    return EXIT_FAILURE;
+  }
 
   HDRPlus hdr_plus(burst, c, g);
 

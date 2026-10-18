@@ -26,11 +26,13 @@ endif()
 set(src_files
     src/InputSource.cpp
     src/Burst.cpp
+    src/BurstValidation.cpp
     src/LibRaw2DngConverter.cpp)
 
 set(header_files
     src/InputSource.h
     src/Burst.h
+    src/BurstValidation.h
     src/LibRaw2DngConverter.h)
 
 add_executable(hdrplus_pipeline_generator src/hdrplus_pipeline_generator.cpp src/align.cpp src/merge.cpp src/finish.cpp src/util.cpp)
@@ -71,3 +73,8 @@ target_include_directories(stack_frames PRIVATE
     ${CMAKE_BINARY_DIR}/genfiles)
 add_dependencies(stack_frames align_and_merge)
 target_link_libraries(stack_frames PRIVATE Halide::Halide align_and_merge ${LIBRAW_LIBRARY} PNG::PNG JPEG::JPEG TIFF::TIFF ${TIFFXX_LIBRARY})
+
+enable_testing()
+add_executable(burst_validation_test tests/burst_validation_test.cpp src/BurstValidation.cpp)
+target_include_directories(burst_validation_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME burst_validation_test COMMAND burst_validation_test)

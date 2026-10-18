@@ -43,6 +43,11 @@ int main(int argc, char *argv[]) {
     in_names.push_back(argv[i++]);
 
   Burst burst(dir_path, in_names);
+  try {
+    burst.Validate();
+  } catch (const std::invalid_argument &) {
+    return EXIT_FAILURE;
+  }
 
   const auto merged = align_and_merge(burst.ToBuffer());
   std::cerr << "merged size: " << merged.width() << " " << merged.height()
