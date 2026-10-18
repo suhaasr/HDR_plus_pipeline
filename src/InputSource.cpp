@@ -1,6 +1,9 @@
 #include "InputSource.h"
 
 #include <algorithm>
+#include <cctype>
+#include <stdexcept>
+#include <utility>
 #include <unordered_map>
 
 #include "LibRaw2DngConverter.h"
@@ -40,6 +43,9 @@ WhiteBalance RawImage::GetWhiteBalance() const {
 
 void RawImage::CopyToBuffer(Halide::Runtime::Buffer<uint16_t> &buffer) const {
   auto *image_data = reinterpret_cast<uint16_t *>(RawProcessor->imgdata.rawdata.raw_image);
+  if (image_data == nullptr) {
+    throw std::runtime_error(Path + " has no single-plane Bayer raw data");
+  }
   const auto raw_width = RawProcessor->imgdata.rawdata.sizes.raw_width;
   const auto raw_height = RawProcessor->imgdata.rawdata.sizes.raw_height;
   const auto top = RawProcessor->imgdata.rawdata.sizes.top_margin;
@@ -119,4 +125,39 @@ Halide::Runtime::Buffer<float> RawImage::GetColorCorrectionMatrix() const {
     }
   }
   return ccm;
+}
+
+FrameMetadata RawImage::GetMetadata() const {
+  const auto &data = RawProcessor->imgdata;
+  FrameMetadata m;
+  m.path = Path;
+  m.has_raw_data = data.rawdata.raw_image != nullptr;
+  // LibRaw (dcraw) convention: filters > 1000 is a 2x2-periodic CFA; 9 is
+  // X-Trans and 0 is a non-mosaiced image.
+  m.is_bayer = data.idata.colors == 3 && data.idata.filters > 1000;
+  for (const auto &[row, col] : {std::pair{0, 0}, {0, 1}, {1, 0}, {1, 1}}) {
+    const int color = RawProcessor->COLOR(row, col);
+    const char c = (color >= 0 && color < 4) ? data.idata.cdesc[color] : '?';
+    m.cfa_pattern += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+  }
+  m.width = GetWidth();
+  m.height = GetHeight();
+  m.black_level = GetBlackLevel();
+  m.white_level = GetWhiteLevel();
+  m.flip = data.sizes.flip;
+  m.make = data.idata.make;
+  m.model = data.idata.model;
+  m.iso = data.other.iso_speed;
+  m.shutter = data.other.shutter;
+  m.aperture = data.other.aperture;
+  const WhiteBalance wb = GetWhiteBalance();
+  m.white_balance = {wb.r, wb.g0, wb.b};
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      m.rgb_cam[i * 3 + j] = data.color.rgb_cam[i][j];
+      m.cam_xyz[i * 3 + j] = data.color.cam_xyz[i][j];
+    }
+  }
+  m.decode_errors = RawProcessor->error_count();
+  return m;
 }

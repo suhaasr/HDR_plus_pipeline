@@ -42,6 +42,8 @@
             "-DCMAKE_BUILD_TYPE=Release"
           ];
 
+          doCheck = true;
+
           # The build produces two binaries: hdrplus and stack_frames
           installPhase = ''
             runHook preInstall

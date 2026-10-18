@@ -5,6 +5,7 @@
 
 #include <libraw/libraw.h>
 
+#include "BurstValidation.h"
 #include "finish.h"
 #include <Halide.h>
 
@@ -30,6 +31,8 @@ public:
   CfaPattern GetCfaPattern() const;
 
   Halide::Runtime::Buffer<float> GetColorCorrectionMatrix() const;
+
+  FrameMetadata GetMetadata() const;
 
   void CopyToBuffer(Halide::Runtime::Buffer<uint16_t> &buffer) const;
 

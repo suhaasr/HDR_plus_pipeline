@@ -47,6 +47,10 @@ public:
 
   const RawImage &GetRaw(const size_t i) const;
 
+  // Prints warnings to stderr and throws std::invalid_argument listing every
+  // error if the frames can't be merged correctly.
+  void Validate() const;
+
 private:
   std::string Dir;
   std::vector<std::string> Inputs;
