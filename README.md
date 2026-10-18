@@ -1,6 +1,30 @@
-# HDR_plus_pipeline
-Tim Brooks and Suhaas Reddy's final project for Visual Computing Systems. Implementation of Google's HDR+ Camera Pipeline as described here: http://www.hdrplusdata.org/hdrplus.pdf
+# HDR+ Implementation
+Original Document on the subject (by Timothy Brooks): https://timothybrooks.com/tech/hdr-plus
 
-## FOR A MORE RECENT VERSION SEE https://github.com/timothybrooks/hdr-plus. That's where we put the final version of our project, and it's still being (lightly) maintained today.
+Currently maintained by [Simon Gardling](https://github.com/Titaniumtown)
 
-As of 2019, I am unable to answer questions or continue working on this due to a conflict with my job. Please direct questions to that project.
+### Quick Start (Nix Flakes)
+
+Build the package directly:
+```bash
+nix build
+./result/bin/hdrplus
+```
+
+Or enter a development shell:
+```bash
+nix develop
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
+
+### HDR+ algorithm examples:
+You can download the examples from [this torrent](./hdr_plus_examples.torrent). Make sure to seed!
+
+### Compiled Binary Usage:
+```
+Usage: ./hdrplus [-c comp -g gain (optional)] dir_path out_img raw_img1 raw_img2 [...]
+```
+
+The -c and -g flags change the amount of dynamic range compression and gain respectively. Although they are optional because they both have default values. 
