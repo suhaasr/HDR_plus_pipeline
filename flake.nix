@@ -62,11 +62,11 @@
           };
         };
 
-        # CC0 sample from raw.pixls.us, used as a pseudo-burst by the e2e check.
+        # Listed as CC0 on raw.pixls.us, with no artist/copyright in its EXIF.
         sampleRaw = pkgs.fetchurl {
-          name = "nikon-z6ii-CZP_0303.NEF";
-          url = "https://raw.pixls.us/data/Nikon/Z%206_2/CZP_0303.NEF";
-          hash = "sha256-hentS85P60OengXDhF1Ve3bRAIDCOTWIIaAHWa/ZMUs=";
+          name = "sony-ilce-7sm3-DSC01569.ARW";
+          url = "https://raw.pixls.us/getfile.php/5418/nice/Sony%20-%20ILCE-7SM3%20-%2014bit%2014bit%20compressed%20(3:2).ARW";
+          hash = "sha256-F+NdmNRItEFk7PQU+YDpJItYKSM+g6GtvuOWtsGhoMY=";
         };
       in
       {
@@ -83,11 +83,11 @@
               }
               ''
                 mkdir burst
-                ln -s ${sampleRaw} burst/frame0.nef
-                ln -s ${sampleRaw} burst/frame1.nef
-                hdrplus burst output.png frame0.nef frame1.nef
+                ln -s ${sampleRaw} burst/frame0.arw
+                ln -s ${sampleRaw} burst/frame1.arw
+                hdrplus burst output.png frame0.arw frame1.arw
                 file burst/output.png | tee /dev/stderr \
-                  | grep -q "PNG image data, 6064 x 4040, 8-bit/color RGB"
+                  | grep -q "PNG image data, 4256 x 2848, 8-bit/color RGB"
                 touch $out
               '';
         };
